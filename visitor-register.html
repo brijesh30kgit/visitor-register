@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#6366F1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Visitor Register</title>
+<link rel="manifest" href="manifest.json">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 16px;
+}
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+.header {
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  color: white;
+  padding: 24px;
+  text-align: center;
+  position: relative;
+}
+.header h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+.header p { font-size: 14px; opacity: 0.9; }
+.admin-btn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.admin-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
+.tabs {
+  display: flex;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+.tab {
+  flex: 1;
+  padding: 16px;
+  text-align: center;
+  font-weight: 500;
+  color: #6c757d;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+.tab.active {
+  color: #6366F1;
+  border-bottom-color: #6366F1;
+  background: white;
+}
+.form-section {
+  padding: 24px;
+  display: none;
+}
+.form-section.active { display: block; }
+.form-group {
+  margin-bottom: 20px;
+}
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 8px;
+}
+.form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  transition: border-color 0.2s;
+}
+.form-group input:focus {
+  outline: none;
+  border-color: #6366F1;
+}
+.time-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.submit-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+}
+.submit-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(99,102,241,0.4);
+}
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.success-msg {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #10b981;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+  z-index: 1000;
+  animation: slideDown 0.3s ease;
+}
+.error-msg {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ef4444;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+  z-index: 1000;
+  animation: slideDown 0.3s ease;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+.modal.active { display: flex; }
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+}
+.modal-content h3 {
+  margin-bottom: 16px;
+  color: #1f2937;
+}
+.modal-content input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+.modal-btns {
+  display: flex;
+  gap: 12px;
+}
+.modal-btns button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.modal-btns button:active { opacity: 0.8; }
+.btn-cancel {
+  background: #e5e7eb;
+  color: #374151;
+}
+.btn-submit {
+  background: #6366F1;
+  color: white;
+}
+.note {
+  background: #f0f9ff;
+  border-left: 4px solid #3b82f6;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #1e40af;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>📋 Visitor Register</h1>
+    <p>Society Entry Management</p>
+    <button class="admin-btn" onclick="showAdminModal()">Admin</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('vendor')">
+      🔧 For Vendors
+    </div>
+    <div class="tab" onclick="switchTab('visitor')">
+      👤 For Visitors
+    </div>
+  </div>
+
+  <!-- Vendor Form -->
+  <div id="vendorForm" class="form-section active">
+    <div class="note">
+      💡 Tap any input field and use your keyboard's microphone button for voice input
+    </div>
+    
+    <form onsubmit="submitVendor(event)">
+      <div class="form-group">
+        <label>Vendor Name *</label>
+        <input type="text" id="vendorName" required autocomplete="off">
+      </div>
+      
+      <div class="form-group">
+        <label>Profession *</label>
+        <input type="text" id="profession" required autocomplete="off">
+      </div>
+      
+      <div class="form-group">
+        <label>Card ID</label>
+        <input type="text" id="cardId" autocomplete="off">
+      </div>
+      
+      <div class="form-group">
+        <label>Phone Number *</label>
+        <input type="tel" id="vendorPhone" required pattern="[0-9]{10}" placeholder="10 digits" autocomplete="off">
+      </div>
+      
+      <div class="form-group">
+        <label>Visiting House *</label>
+        <input type="text" id="vendorHouse" required placeholder="e.g., A-101" autocomplete="off">
+      </div>
+      
+      <div class="time-group">
+        <div class="form-group">
+          <label>In Time *</label>
+          <input type="time" id="vendorInTime" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Out Time</label>
+          <input type="time" id="vendorOutTime">
+        </div>
+      </div>
+      
+      <button type="submit" class="submit-btn">Submit Entry</button>
+    </form>
+  </div>
+
+  <!-- Visitor Form -->
+  <div id="visitorForm" class="form-section">
+    <div class="note">
+      💡 Tap any input field and use your keyboard's microphone button for voice input
+    </div>
+    
+    <form onsubmit="submitVisitor(event)">
+      <div class="form-group">
+        <label>Visitor Name *</label>
+        <input type="text" id="visitorName" required autocomplete="off">
+      </div>
+      
+      <div class="form-group">
+        <label>Purpose *</label>
+        <input type="text" id="purpose" required autocomplete="off">
+      </div>
+      
+      <div class="form-group">
+        <label>Visitor Address</label>
+        <input type="text" id="visitorAddress" autocomplete="off">
+      </div>
+      
+      <div class="form-group">
+        <label>Phone Number *</label>
+        <input type="tel" id="visitorPhone" required pattern="[0-9]{10}" placeholder="10 digits" autocomplete="off">
+      </div>
+      
+      <div class="form-group">
+        <label>Visiting House *</label>
+        <input type="text" id="visitorHouse" required placeholder="e.g., A-101" autocomplete="off">
+      </div>
+      
+      <div class="time-group">
+        <div class="form-group">
+          <label>In Time *</label>
+          <input type="time" id="visitorInTime" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Out Time</label>
+          <input type="time" id="visitorOutTime">
+        </div>
+      </div>
+      
+      <button type="submit" class="submit-btn">Submit Entry</button>
+    </form>
+  </div>
+</div>
+
+<!-- Admin Modal -->
+<div id="adminModal" class="modal">
+  <div class="modal-content">
+    <h3>Admin Access</h3>
+    <input type="password" id="adminPassword" placeholder="Enter password">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeAdminModal()">Cancel</button>
+      <button class="btn-submit" onclick="verifyAdmin()">Open Sheet</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ⚠️ REPLACE THIS URL WITH YOUR APPS SCRIPT WEB APP URL
+const SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+
+// ⚠️ REPLACE THIS WITH YOUR GOOGLE SHEET URL
+const SHEET_URL = 'YOUR_GOOGLE_SHEET_URL_HERE';
+
+const ADMIN_PASSWORD = 'Ajay123';
+
+// Auto-populate In Time on page load
+window.addEventListener('load', () => {
+  const now = new Date();
+  const timeStr = now.toTimeString().slice(0, 5);
+  document.getElementById('vendorInTime').value = timeStr;
+  document.getElementById('visitorInTime').value = timeStr;
+  
+  // Register service worker for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+});
+
+function switchTab(type) {
+  const tabs = document.querySelectorAll('.tab');
+  const forms = document.querySelectorAll('.form-section');
+  
+  tabs.forEach(tab => tab.classList.remove('active'));
+  forms.forEach(form => form.classList.remove('active'));
+  
+  if (type === 'vendor') {
+    tabs[0].classList.add('active');
+    document.getElementById('vendorForm').classList.add('active');
+  } else {
+    tabs[1].classList.add('active');
+    document.getElementById('visitorForm').classList.add('active');
+  }
+}
+
+function showAdminModal() {
+  document.getElementById('adminModal').classList.add('active');
+  document.getElementById('adminPassword').value = '';
+  document.getElementById('adminPassword').focus();
+}
+
+function closeAdminModal() {
+  document.getElementById('adminModal').classList.remove('active');
+}
+
+function verifyAdmin() {
+  const password = document.getElementById('adminPassword').value;
+  if (password === ADMIN_PASSWORD) {
+    closeAdminModal();
+    window.open(SHEET_URL, '_blank');
+  } else {
+    showError('Incorrect password');
+    document.getElementById('adminPassword').value = '';
+  }
+}
+
+async function submitVendor(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+  
+  const data = {
+    type: 'vendor',
+    vendorName: document.getElementById('vendorName').value,
+    profession: document.getElementById('profession').value,
+    cardId: document.getElementById('cardId').value,
+    phoneNumber: document.getElementById('vendorPhone').value,
+    visitingHouse: document.getElementById('vendorHouse').value,
+    inTime: document.getElementById('vendorInTime').value,
+    outTime: document.getElementById('vendorOutTime').value
+  };
+  
+  try {
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      showSuccess('Vendor entry recorded successfully');
+      e.target.reset();
+      const now = new Date();
+      document.getElementById('vendorInTime').value = now.toTimeString().slice(0, 5);
+    } else {
+      showError(result.error || 'Submission failed');
+    }
+  } catch (error) {
+    showError('Network error. Please check your connection.');
+  }
+  
+  btn.disabled = false;
+  btn.textContent = 'Submit Entry';
+}
+
+async function submitVisitor(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+  
+  const data = {
+    type: 'visitor',
+    visitorName: document.getElementById('visitorName').value,
+    purpose: document.getElementById('purpose').value,
+    visitorAddress: document.getElementById('visitorAddress').value,
+    phoneNumber: document.getElementById('visitorPhone').value,
+    visitingHouse: document.getElementById('visitorHouse').value,
+    inTime: document.getElementById('visitorInTime').value,
+    outTime: document.getElementById('visitorOutTime').value
+  };
+  
+  try {
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      showSuccess('Visitor entry recorded successfully');
+      e.target.reset();
+      const now = new Date();
+      document.getElementById('visitorInTime').value = now.toTimeString().slice(0, 5);
+    } else {
+      showError(result.error || 'Submission failed');
+    }
+  } catch (error) {
+    showError('Network error. Please check your connection.');
+  }
+  
+  btn.disabled = false;
+  btn.textContent = 'Submit Entry';
+}
+
+function showSuccess(message) {
+  const msg = document.createElement('div');
+  msg.className = 'success-msg';
+  msg.textContent = message;
+  document.body.appendChild(msg);
+  setTimeout(() => msg.remove(), 3000);
+}
+
+function showError(message) {
+  const msg = document.createElement('div');
+  msg.className = 'error-msg';
+  msg.textContent = message;
+  document.body.appendChild(msg);
+  setTimeout(() => msg.remove(), 3000);
+}
+
+// Enter key on password modal
+document.getElementById('adminPassword')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') verifyAdmin();
+});
+</script>
+
+</body>
+</html>
