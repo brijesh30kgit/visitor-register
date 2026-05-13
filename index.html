@@ -35,14 +35,14 @@ body {
 .header p { font-size: 14px; opacity: 0.9; }
 .admin-btn {
   position: absolute;
-  top: 24px;
-  right: 24px;
+  top: 16px;
+  right: 16px;
   background: rgba(255,255,255,0.2);
   border: 1px solid rgba(255,255,255,0.3);
   color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -120,34 +120,20 @@ body {
   opacity: 0.6;
   cursor: not-allowed;
 }
-.success-msg {
+.success-msg, .error-msg {
   position: fixed;
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: #10b981;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 500;
-  box-shadow: 0 4px 12px rgba(16,185,129,0.3);
   z-index: 1000;
   animation: slideDown 0.3s ease;
 }
-.error-msg {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #ef4444;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 500;
-  box-shadow: 0 4px 12px rgba(239,68,68,0.3);
-  z-index: 1000;
-  animation: slideDown 0.3s ease;
-}
+.success-msg { background: #10b981; box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+.error-msg { background: #ef4444; box-shadow: 0 4px 12px rgba(239,68,68,0.3); }
 @keyframes slideDown {
   from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
   to { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -163,14 +149,17 @@ body {
   z-index: 2000;
   align-items: center;
   justify-content: center;
+  padding: 16px;
 }
 .modal.active { display: flex; }
 .modal-content {
   background: white;
   padding: 24px;
   border-radius: 16px;
-  width: 90%;
+  width: 100%;
   max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 .modal-content h3 {
   margin-bottom: 16px;
@@ -206,6 +195,10 @@ body {
   background: #6366F1;
   color: white;
 }
+.btn-danger {
+  background: #ef4444;
+  color: white;
+}
 .note {
   background: #f0f9ff;
   border-left: 4px solid #3b82f6;
@@ -215,13 +208,110 @@ body {
   font-size: 13px;
   color: #1e40af;
 }
+.login-screen {
+  padding: 40px 24px;
+  text-align: center;
+}
+.login-screen h2 {
+  color: #1f2937;
+  margin-bottom: 24px;
+}
+.user-list {
+  margin-top: 20px;
+}
+.user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.user-item-info {
+  flex: 1;
+}
+.user-item-name {
+  font-weight: 500;
+  color: #1f2937;
+}
+.user-item-role {
+  font-size: 12px;
+  color: #6c757d;
+}
+.user-item-btns {
+  display: flex;
+  gap: 8px;
+}
+.user-item-btns button {
+  padding: 6px 12px;
+  font-size: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.user-item-btns button:active { opacity: 0.8; }
+.btn-edit {
+  background: #3b82f6;
+  color: white;
+}
+.btn-delete {
+  background: #ef4444;
+  color: white;
+}
+.add-user-btn {
+  width: 100%;
+  padding: 12px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 16px;
+}
+.logout-btn {
+  width: 100%;
+  padding: 12px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
 </style>
 </head>
 <body>
 
-<div class="container">
+<!-- Login Screen -->
+<div id="loginScreen" class="container">
   <div class="header">
-   
+    <h1>📋 Visitor Register</h1>
+    <p>Society Entry Management</p>
+  </div>
+  <div class="login-screen">
+    <h2>Login Required</h2>
+    <form onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="loginUsername" required autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="submit-btn">Login</button>
+    </form>
+  </div>
+</div>
+
+<!-- Main App (hidden until login) -->
+<div id="mainApp" class="container" style="display: none;">
+  <div class="header">
+    <h1>📋 Visitor Register</h1>
     <p>Society Entry Management</p>
     <button class="admin-btn" onclick="showAdminModal()">Admin</button>
   </div>
@@ -330,41 +420,138 @@ body {
       <button type="submit" class="submit-btn">Submit Entry</button>
     </form>
   </div>
+  
+  <div style="padding: 0 24px 24px">
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
 </div>
 
 <!-- Admin Modal -->
 <div id="adminModal" class="modal">
   <div class="modal-content">
-    <h3>Admin Access</h3>
-    <input type="password" id="adminPassword" placeholder="Enter password">
+    <h3>Admin Panel</h3>
+    <input type="password" id="adminPassword" placeholder="Enter admin password">
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeAdminModal()">Cancel</button>
-      <button class="btn-submit" onclick="verifyAdmin()">Open Sheet</button>
+      <button class="btn-submit" onclick="verifyAdmin()">Access</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Dashboard Modal -->
+<div id="adminDashboard" class="modal">
+  <div class="modal-content">
+    <h3>Admin Dashboard</h3>
+    
+    <button class="submit-btn" style="margin-bottom: 16px;" onclick="openSheet()">Open Google Sheet</button>
+    
+    <h4 style="margin: 20px 0 12px; color: #1f2937;">Manage Users</h4>
+    <div id="userList" class="user-list"></div>
+    
+    <button class="add-user-btn" onclick="showAddUserModal()">+ Add New User</button>
+    
+    <button class="btn-cancel" style="width: 100%; padding: 12px; margin-top: 16px;" onclick="closeAdminDashboard()">Close</button>
+  </div>
+</div>
+
+<!-- Add/Edit User Modal -->
+<div id="userModal" class="modal">
+  <div class="modal-content">
+    <h3 id="userModalTitle">Add New User</h3>
+    <input type="text" id="modalUsername" placeholder="Username">
+    <input type="password" id="modalPassword" placeholder="Password">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeUserModal()">Cancel</button>
+      <button class="btn-submit" onclick="saveUser()">Save</button>
     </div>
   </div>
 </div>
 
 <script>
-// ⚠️ REPLACE THIS URL WITH YOUR APPS SCRIPT WEB APP URL
+// ⚠️ REPLACE THESE URLs
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwly4i-IUHdwuLiHd4xsLxRj_MYubzU4btN1hq9E8J_X_v3shCo59kZHUNbq29q-JFG/exec';
-
-// ⚠️ REPLACE THIS WITH YOUR GOOGLE SHEET URL
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1tfF8LtWB5pSqBJFrhtfP3JPLtrKUnPDr5NWatjOzt8k/edit?gid=0#gid=0';
 
 const ADMIN_PASSWORD = 'Ajay123';
 
-// Auto-populate In Time on page load
+// Default users (stored in localStorage)
+const DEFAULT_USERS = [
+  { username: 'guard1', password: 'guard123', role: 'Guard' },
+  { username: 'admin', password: 'admin123', role: 'Admin' }
+];
+
+let currentUser = null;
+let editingUsername = null;
+
+// Initialize
 window.addEventListener('load', () => {
+  initializeUsers();
+  checkLogin();
+  
   const now = new Date();
   const timeStr = now.toTimeString().slice(0, 5);
   document.getElementById('vendorInTime').value = timeStr;
   document.getElementById('visitorInTime').value = timeStr;
   
-  // Register service worker for PWA
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 });
+
+function initializeUsers() {
+  if (!localStorage.getItem('users')) {
+    localStorage.setItem('users', JSON.stringify(DEFAULT_USERS));
+  }
+}
+
+function getUsers() {
+  return JSON.parse(localStorage.getItem('users') || '[]');
+}
+
+function saveUsers(users) {
+  localStorage.setItem('users', JSON.stringify(users));
+}
+
+function checkLogin() {
+  const loggedUser = sessionStorage.getItem('currentUser');
+  if (loggedUser) {
+    currentUser = JSON.parse(loggedUser);
+    showMainApp();
+  }
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('loginUsername').value;
+  const password = document.getElementById('loginPassword').value;
+  
+  const users = getUsers();
+  const user = users.find(u => u.username === username && u.password === password);
+  
+  if (user) {
+    currentUser = user;
+    sessionStorage.setItem('currentUser', JSON.stringify(user));
+    showMainApp();
+    showSuccess('Login successful');
+  } else {
+    showError('Invalid username or password');
+  }
+}
+
+function showMainApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+}
+
+function logout() {
+  sessionStorage.removeItem('currentUser');
+  currentUser = null;
+  document.getElementById('loginScreen').style.display = 'block';
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginPassword').value = '';
+  showSuccess('Logged out successfully');
+}
 
 function switchTab(type) {
   const tabs = document.querySelectorAll('.tab');
@@ -396,11 +583,111 @@ function verifyAdmin() {
   const password = document.getElementById('adminPassword').value;
   if (password === ADMIN_PASSWORD) {
     closeAdminModal();
-    window.open(SHEET_URL, '_blank');
+    showAdminDashboard();
   } else {
-    showError('Incorrect password');
+    showError('Incorrect admin password');
     document.getElementById('adminPassword').value = '';
   }
+}
+
+function showAdminDashboard() {
+  loadUserList();
+  document.getElementById('adminDashboard').classList.add('active');
+}
+
+function closeAdminDashboard() {
+  document.getElementById('adminDashboard').classList.remove('active');
+}
+
+function openSheet() {
+  window.open(SHEET_URL, '_blank');
+}
+
+function loadUserList() {
+  const users = getUsers();
+  const listHtml = users.map(user => `
+    <div class="user-item">
+      <div class="user-item-info">
+        <div class="user-item-name">${user.username}</div>
+        <div class="user-item-role">${user.role || 'User'}</div>
+      </div>
+      <div class="user-item-btns">
+        <button class="btn-edit" onclick="editUser('${user.username}')">Change Password</button>
+        <button class="btn-delete" onclick="deleteUser('${user.username}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+  
+  document.getElementById('userList').innerHTML = listHtml;
+}
+
+function showAddUserModal() {
+  editingUsername = null;
+  document.getElementById('userModalTitle').textContent = 'Add New User';
+  document.getElementById('modalUsername').value = '';
+  document.getElementById('modalPassword').value = '';
+  document.getElementById('modalUsername').disabled = false;
+  document.getElementById('userModal').classList.add('active');
+}
+
+function editUser(username) {
+  editingUsername = username;
+  const users = getUsers();
+  const user = users.find(u => u.username === username);
+  
+  document.getElementById('userModalTitle').textContent = 'Change Password';
+  document.getElementById('modalUsername').value = username;
+  document.getElementById('modalPassword').value = '';
+  document.getElementById('modalUsername').disabled = true;
+  document.getElementById('userModal').classList.add('active');
+}
+
+function closeUserModal() {
+  document.getElementById('userModal').classList.remove('active');
+}
+
+function saveUser() {
+  const username = document.getElementById('modalUsername').value.trim();
+  const password = document.getElementById('modalPassword').value.trim();
+  
+  if (!username || !password) {
+    showError('Username and password are required');
+    return;
+  }
+  
+  const users = getUsers();
+  
+  if (editingUsername) {
+    // Change password
+    const userIndex = users.findIndex(u => u.username === editingUsername);
+    if (userIndex !== -1) {
+      users[userIndex].password = password;
+      saveUsers(users);
+      showSuccess('Password changed successfully');
+    }
+  } else {
+    // Add new user
+    if (users.find(u => u.username === username)) {
+      showError('Username already exists');
+      return;
+    }
+    users.push({ username, password, role: 'Guard' });
+    saveUsers(users);
+    showSuccess('User added successfully');
+  }
+  
+  closeUserModal();
+  loadUserList();
+}
+
+function deleteUser(username) {
+  if (!confirm(`Delete user "${username}"?`)) return;
+  
+  const users = getUsers();
+  const filtered = users.filter(u => u.username !== username);
+  saveUsers(filtered);
+  loadUserList();
+  showSuccess('User deleted successfully');
 }
 
 async function submitVendor(e) {
@@ -499,7 +786,6 @@ function showError(message) {
   setTimeout(() => msg.remove(), 3000);
 }
 
-// Enter key on password modal
 document.getElementById('adminPassword')?.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') verifyAdmin();
 });
