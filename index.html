@@ -33,7 +33,7 @@ body {
 }
 .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
 .header p { font-size: 14px; opacity: 0.9; }
-.admin-btn {
+.logout-header-btn {
   position: absolute;
   top: 16px;
   right: 16px;
@@ -46,7 +46,7 @@ body {
   cursor: pointer;
   transition: all 0.2s;
 }
-.admin-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
+.logout-header-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
 .tabs {
   display: flex;
   background: #f8f9fa;
@@ -82,7 +82,7 @@ body {
   color: #495057;
   margin-bottom: 8px;
 }
-.form-group input {
+.form-group input, .form-group select {
   width: 100%;
   padding: 12px 16px;
   font-size: 16px;
@@ -90,7 +90,7 @@ body {
   border-radius: 8px;
   transition: border-color 0.2s;
 }
-.form-group input:focus {
+.form-group input:focus, .form-group select:focus {
   outline: none;
   border-color: #6366F1;
 }
@@ -208,13 +208,56 @@ body {
   font-size: 13px;
   color: #1e40af;
 }
-.login-screen {
+.login-selection {
   padding: 40px 24px;
   text-align: center;
+}
+.login-selection h2 {
+  color: #1f2937;
+  margin-bottom: 32px;
+}
+.login-type-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.login-type-btn {
+  padding: 20px;
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+}
+.login-type-btn:active {
+  transform: scale(0.98);
+}
+.login-type-btn.admin-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+}
+.login-screen {
+  padding: 40px 24px;
 }
 .login-screen h2 {
   color: #1f2937;
   margin-bottom: 24px;
+  text-align: center;
+}
+.back-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #e5e7eb;
+  color: #374151;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 16px;
 }
 .user-list {
   margin-top: 20px;
@@ -271,6 +314,84 @@ body {
   cursor: pointer;
   margin-top: 16px;
 }
+.camera-section {
+  margin-bottom: 20px;
+}
+.camera-preview {
+  width: 100%;
+  max-width: 300px;
+  height: 200px;
+  background: #f1f3f5;
+  border-radius: 8px;
+  margin: 12px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px solid #e9ecef;
+}
+.camera-preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.camera-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.camera-preview-placeholder {
+  color: #adb5bd;
+  font-size: 14px;
+  text-align: center;
+}
+.camera-btns {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+.camera-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.camera-btn:active { opacity: 0.8; }
+.btn-capture {
+  background: #3b82f6;
+  color: white;
+}
+.btn-retake {
+  background: #f59e0b;
+  color: white;
+}
+.admin-dashboard {
+  padding: 24px;
+}
+.admin-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.admin-menu-btn {
+  padding: 16px;
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+  text-align: left;
+}
+.admin-menu-btn:active {
+  transform: scale(0.98);
+}
 .logout-btn {
   width: 100%;
   padding: 12px;
@@ -280,40 +401,75 @@ body {
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 8px;
+  margin-top: 16px;
 }
 </style>
 </head>
 <body>
 
-<!-- Login Screen -->
-<div id="loginScreen" class="container">
+<!-- Login Type Selection -->
+<div id="loginSelection" class="container">
   <div class="header">
     <h1>📋 Visitor Register</h1>
     <p>Society Entry Management</p>
   </div>
+  <div class="login-selection">
+    <h2>Select Login Type</h2>
+    <div class="login-type-btns">
+      <button class="login-type-btn" onclick="showGuardLogin()">🔐 Guard Login</button>
+      <button class="login-type-btn admin-btn" onclick="showAdminLogin()">👨‍💼 Admin Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- Guard Login Screen -->
+<div id="guardLoginScreen" class="container" style="display: none;">
+  <div class="header">
+    <h1>📋 Visitor Register</h1>
+    <p>Guard Login</p>
+  </div>
   <div class="login-screen">
-    <h2>Login Required</h2>
-    <form onsubmit="handleLogin(event)">
+    <button class="back-btn" onclick="backToSelection()">← Back</button>
+    <h2>Guard Login</h2>
+    <form onsubmit="handleGuardLogin(event)">
       <div class="form-group">
         <label>Username</label>
-        <input type="text" id="loginUsername" required autocomplete="username">
+        <input type="text" id="guardUsername" required autocomplete="username">
       </div>
       <div class="form-group">
         <label>Password</label>
-        <input type="password" id="loginPassword" required autocomplete="current-password">
+        <input type="password" id="guardPassword" required autocomplete="current-password">
       </div>
       <button type="submit" class="submit-btn">Login</button>
     </form>
   </div>
 </div>
 
-<!-- Main App (hidden until login) -->
-<div id="mainApp" class="container" style="display: none;">
+<!-- Admin Login Screen -->
+<div id="adminLoginScreen" class="container" style="display: none;">
   <div class="header">
     <h1>📋 Visitor Register</h1>
-    <p>Society Entry Management</p>
-    <button class="admin-btn" onclick="showAdminModal()">Admin</button>
+    <p>Admin Login</p>
+  </div>
+  <div class="login-screen">
+    <button class="back-btn" onclick="backToSelection()">← Back</button>
+    <h2>Admin Login</h2>
+    <form onsubmit="handleAdminLogin(event)">
+      <div class="form-group">
+        <label>Admin Password</label>
+        <input type="password" id="adminPassword" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="submit-btn">Login</button>
+    </form>
+  </div>
+</div>
+
+<!-- Guard App (Vendor/Visitor Forms) -->
+<div id="guardApp" class="container" style="display: none;">
+  <div class="header">
+    <h1>📋 Visitor Register</h1>
+    <p>Guard Portal</p>
+    <button class="logout-header-btn" onclick="logout()">Logout</button>
   </div>
 
   <div class="tabs">
@@ -353,6 +509,11 @@ body {
       </div>
       
       <div class="form-group">
+        <label>Vehicle Number</label>
+        <input type="text" id="vendorVehicle" placeholder="e.g., DL-01-AB-1234" autocomplete="off" style="text-transform: uppercase;">
+      </div>
+      
+      <div class="form-group">
         <label>Visiting House *</label>
         <input type="text" id="vendorHouse" required placeholder="e.g., A-101" autocomplete="off">
       </div>
@@ -380,6 +541,26 @@ body {
     </div>
     
     <form onsubmit="submitVisitor(event)">
+      <!-- Camera Section -->
+      <div class="camera-section">
+        <label style="display: block; font-size: 14px; font-weight: 500; color: #495057; margin-bottom: 8px;">
+          Visitor Photo *
+        </label>
+        <div class="camera-preview" id="cameraPreview">
+          <div class="camera-preview-placeholder">
+            📷 Camera preview will appear here
+          </div>
+        </div>
+        <div class="camera-btns">
+          <button type="button" class="camera-btn btn-capture" id="captureBtn" onclick="capturePhoto()">
+            📸 Capture Photo
+          </button>
+          <button type="button" class="camera-btn btn-retake" id="retakeBtn" onclick="retakePhoto()" style="display: none;">
+            🔄 Retake
+          </button>
+        </div>
+      </div>
+      
       <div class="form-group">
         <label>Visitor Name *</label>
         <input type="text" id="visitorName" required autocomplete="off">
@@ -398,6 +579,11 @@ body {
       <div class="form-group">
         <label>Phone Number *</label>
         <input type="tel" id="visitorPhone" required pattern="[0-9]{10}" placeholder="10 digits" autocomplete="off">
+      </div>
+      
+      <div class="form-group">
+        <label>Vehicle Number</label>
+        <input type="text" id="visitorVehicle" placeholder="e.g., DL-01-AB-1234" autocomplete="off" style="text-transform: uppercase;">
       </div>
       
       <div class="form-group">
@@ -420,37 +606,35 @@ body {
       <button type="submit" class="submit-btn">Submit Entry</button>
     </form>
   </div>
-  
-  <div style="padding: 0 24px 24px">
-    <button class="logout-btn" onclick="logout()">Logout</button>
-  </div>
 </div>
 
-<!-- Admin Modal -->
-<div id="adminModal" class="modal">
-  <div class="modal-content">
-    <h3>Admin Panel</h3>
-    <input type="password" id="adminPassword" placeholder="Enter admin password">
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeAdminModal()">Cancel</button>
-      <button class="btn-submit" onclick="verifyAdmin()">Access</button>
+<!-- Admin Dashboard -->
+<div id="adminApp" class="container" style="display: none;">
+  <div class="header">
+    <h1>📋 Visitor Register</h1>
+    <p>Admin Dashboard</p>
+    <button class="logout-header-btn" onclick="logout()">Logout</button>
+  </div>
+  
+  <div class="admin-dashboard">
+    <div class="admin-menu">
+      <button class="admin-menu-btn" onclick="openSheet()">
+        📊 Open Google Sheet
+      </button>
+      <button class="admin-menu-btn" onclick="showUserManagement()">
+        👥 Manage Users
+      </button>
     </div>
   </div>
 </div>
 
-<!-- Admin Dashboard Modal -->
-<div id="adminDashboard" class="modal">
+<!-- User Management Modal -->
+<div id="userManagementModal" class="modal">
   <div class="modal-content">
-    <h3>Admin Dashboard</h3>
-    
-    <button class="submit-btn" style="margin-bottom: 16px;" onclick="openSheet()">Open Google Sheet</button>
-    
-    <h4 style="margin: 20px 0 12px; color: #1f2937;">Manage Users</h4>
+    <h3>Manage Users</h3>
     <div id="userList" class="user-list"></div>
-    
     <button class="add-user-btn" onclick="showAddUserModal()">+ Add New User</button>
-    
-    <button class="btn-cancel" style="width: 100%; padding: 12px; margin-top: 16px;" onclick="closeAdminDashboard()">Close</button>
+    <button class="btn-cancel" style="width: 100%; padding: 12px; margin-top: 16px;" onclick="closeUserManagement()">Close</button>
   </div>
 </div>
 
@@ -469,19 +653,22 @@ body {
 
 <script>
 // ⚠️ REPLACE THESE URLs
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwly4i-IUHdwuLiHd4xsLxRj_MYubzU4btN1hq9E8J_X_v3shCo59kZHUNbq29q-JFG/exec';
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1tfF8LtWB5pSqBJFrhtfP3JPLtrKUnPDr5NWatjOzt8k/edit?gid=0#gid=0';
+const SCRIPT_URL = 'https://script.google.com/u/0/home/projects/1m7pa8w8mqy798jX2baWKL6V0wfa5LTpoLQf9IunZm9nLriqvU89_EaW3/edit';
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1tfF8LtWB5pSqBJFrhtfP3JPLtrKUnPDr5NWatjOzt8k/edit?gid=1125368423#gid=1125368423';
 
 const ADMIN_PASSWORD = 'Ajay123';
 
-// Default users (stored in localStorage)
+// Default users
 const DEFAULT_USERS = [
   { username: 'guard1', password: 'guard123', role: 'Guard' },
-  { username: 'admin', password: 'admin123', role: 'Admin' }
+  { username: 'guard2', password: 'guard456', role: 'Guard' }
 ];
 
 let currentUser = null;
+let userRole = null;
 let editingUsername = null;
+let videoStream = null;
+let capturedPhotoData = null;
 
 // Initialize
 window.addEventListener('load', () => {
@@ -514,43 +701,155 @@ function saveUsers(users) {
 
 function checkLogin() {
   const loggedUser = sessionStorage.getItem('currentUser');
-  if (loggedUser) {
+  const role = sessionStorage.getItem('userRole');
+  if (loggedUser && role) {
     currentUser = JSON.parse(loggedUser);
-    showMainApp();
+    userRole = role;
+    if (role === 'guard') {
+      showGuardApp();
+    } else {
+      showAdminApp();
+    }
   }
 }
 
-function handleLogin(e) {
+function showGuardLogin() {
+  document.getElementById('loginSelection').style.display = 'none';
+  document.getElementById('guardLoginScreen').style.display = 'block';
+}
+
+function showAdminLogin() {
+  document.getElementById('loginSelection').style.display = 'none';
+  document.getElementById('adminLoginScreen').style.display = 'block';
+}
+
+function backToSelection() {
+  document.getElementById('guardLoginScreen').style.display = 'none';
+  document.getElementById('adminLoginScreen').style.display = 'none';
+  document.getElementById('loginSelection').style.display = 'block';
+  document.getElementById('guardUsername').value = '';
+  document.getElementById('guardPassword').value = '';
+  document.getElementById('adminPassword').value = '';
+}
+
+function handleGuardLogin(e) {
   e.preventDefault();
-  const username = document.getElementById('loginUsername').value;
-  const password = document.getElementById('loginPassword').value;
+  const username = document.getElementById('guardUsername').value;
+  const password = document.getElementById('guardPassword').value;
   
   const users = getUsers();
-  const user = users.find(u => u.username === username && u.password === password);
+  const user = users.find(u => u.username === username && u.password === password && u.role === 'Guard');
   
   if (user) {
     currentUser = user;
+    userRole = 'guard';
     sessionStorage.setItem('currentUser', JSON.stringify(user));
-    showMainApp();
+    sessionStorage.setItem('userRole', 'guard');
+    showGuardApp();
     showSuccess('Login successful');
   } else {
-    showError('Invalid username or password');
+    showError('Invalid guard credentials');
   }
 }
 
-function showMainApp() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'block';
+function handleAdminLogin(e) {
+  e.preventDefault();
+  const password = document.getElementById('adminPassword').value;
+  
+  if (password === ADMIN_PASSWORD) {
+    currentUser = { username: 'admin', role: 'Admin' };
+    userRole = 'admin';
+    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+    sessionStorage.setItem('userRole', 'admin');
+    showAdminApp();
+    showSuccess('Admin login successful');
+  } else {
+    showError('Invalid admin password');
+  }
+}
+
+function showGuardApp() {
+  document.getElementById('guardLoginScreen').style.display = 'none';
+  document.getElementById('guardApp').style.display = 'block';
+  startCamera();
+}
+
+function showAdminApp() {
+  document.getElementById('adminLoginScreen').style.display = 'none';
+  document.getElementById('adminApp').style.display = 'block';
 }
 
 function logout() {
+  stopCamera();
   sessionStorage.removeItem('currentUser');
+  sessionStorage.removeItem('userRole');
   currentUser = null;
-  document.getElementById('loginScreen').style.display = 'block';
-  document.getElementById('mainApp').style.display = 'none';
-  document.getElementById('loginUsername').value = '';
-  document.getElementById('loginPassword').value = '';
+  userRole = null;
+  document.getElementById('guardApp').style.display = 'none';
+  document.getElementById('adminApp').style.display = 'none';
+  document.getElementById('loginSelection').style.display = 'block';
   showSuccess('Logged out successfully');
+}
+
+async function startCamera() {
+  try {
+    videoStream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: 'user', width: 640, height: 480 } 
+    });
+    const preview = document.getElementById('cameraPreview');
+    const video = document.createElement('video');
+    video.srcObject = videoStream;
+    video.autoplay = true;
+    video.playsInline = true;
+    preview.innerHTML = '';
+    preview.appendChild(video);
+  } catch (error) {
+    showError('Camera access denied. Please enable camera permissions.');
+  }
+}
+
+function stopCamera() {
+  if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+    videoStream = null;
+  }
+}
+
+function capturePhoto() {
+  const preview = document.getElementById('cameraPreview');
+  const video = preview.querySelector('video');
+  
+  if (!video) {
+    showError('Camera not active');
+    return;
+  }
+  
+  const canvas = document.createElement('canvas');
+  canvas.width = 320; // Low resolution
+  canvas.height = 240;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  capturedPhotoData = canvas.toDataURL('image/jpeg', 0.6); // 60% quality for smaller size
+  
+  const img = document.createElement('img');
+  img.src = capturedPhotoData;
+  preview.innerHTML = '';
+  preview.appendChild(img);
+  
+  stopCamera();
+  
+  document.getElementById('captureBtn').style.display = 'none';
+  document.getElementById('retakeBtn').style.display = 'block';
+  
+  showSuccess('Photo captured');
+}
+
+function retakePhoto() {
+  capturedPhotoData = null;
+  document.getElementById('captureBtn').style.display = 'block';
+  document.getElementById('retakeBtn').style.display = 'none';
+  startCamera();
 }
 
 function switchTab(type) {
@@ -563,44 +862,25 @@ function switchTab(type) {
   if (type === 'vendor') {
     tabs[0].classList.add('active');
     document.getElementById('vendorForm').classList.add('active');
+    stopCamera();
   } else {
     tabs[1].classList.add('active');
     document.getElementById('visitorForm').classList.add('active');
+    startCamera();
   }
-}
-
-function showAdminModal() {
-  document.getElementById('adminModal').classList.add('active');
-  document.getElementById('adminPassword').value = '';
-  document.getElementById('adminPassword').focus();
-}
-
-function closeAdminModal() {
-  document.getElementById('adminModal').classList.remove('active');
-}
-
-function verifyAdmin() {
-  const password = document.getElementById('adminPassword').value;
-  if (password === ADMIN_PASSWORD) {
-    closeAdminModal();
-    showAdminDashboard();
-  } else {
-    showError('Incorrect admin password');
-    document.getElementById('adminPassword').value = '';
-  }
-}
-
-function showAdminDashboard() {
-  loadUserList();
-  document.getElementById('adminDashboard').classList.add('active');
-}
-
-function closeAdminDashboard() {
-  document.getElementById('adminDashboard').classList.remove('active');
 }
 
 function openSheet() {
   window.open(SHEET_URL, '_blank');
+}
+
+function showUserManagement() {
+  loadUserList();
+  document.getElementById('userManagementModal').classList.add('active');
+}
+
+function closeUserManagement() {
+  document.getElementById('userManagementModal').classList.remove('active');
 }
 
 function loadUserList() {
@@ -609,7 +889,7 @@ function loadUserList() {
     <div class="user-item">
       <div class="user-item-info">
         <div class="user-item-name">${user.username}</div>
-        <div class="user-item-role">${user.role || 'User'}</div>
+        <div class="user-item-role">${user.role || 'Guard'}</div>
       </div>
       <div class="user-item-btns">
         <button class="btn-edit" onclick="editUser('${user.username}')">Change Password</button>
@@ -632,9 +912,6 @@ function showAddUserModal() {
 
 function editUser(username) {
   editingUsername = username;
-  const users = getUsers();
-  const user = users.find(u => u.username === username);
-  
   document.getElementById('userModalTitle').textContent = 'Change Password';
   document.getElementById('modalUsername').value = username;
   document.getElementById('modalPassword').value = '';
@@ -658,7 +935,6 @@ function saveUser() {
   const users = getUsers();
   
   if (editingUsername) {
-    // Change password
     const userIndex = users.findIndex(u => u.username === editingUsername);
     if (userIndex !== -1) {
       users[userIndex].password = password;
@@ -666,7 +942,6 @@ function saveUser() {
       showSuccess('Password changed successfully');
     }
   } else {
-    // Add new user
     if (users.find(u => u.username === username)) {
       showError('Username already exists');
       return;
@@ -702,9 +977,11 @@ async function submitVendor(e) {
     profession: document.getElementById('profession').value,
     cardId: document.getElementById('cardId').value,
     phoneNumber: document.getElementById('vendorPhone').value,
+    vehicleNumber: document.getElementById('vendorVehicle').value.toUpperCase(),
     visitingHouse: document.getElementById('vendorHouse').value,
     inTime: document.getElementById('vendorInTime').value,
-    outTime: document.getElementById('vendorOutTime').value
+    outTime: document.getElementById('vendorOutTime').value,
+    photo: '' // No photo for vendors
   };
   
   try {
@@ -732,6 +1009,12 @@ async function submitVendor(e) {
 
 async function submitVisitor(e) {
   e.preventDefault();
+  
+  if (!capturedPhotoData) {
+    showError('Please capture visitor photo first');
+    return;
+  }
+  
   const btn = e.target.querySelector('button');
   btn.disabled = true;
   btn.textContent = 'Submitting...';
@@ -742,9 +1025,11 @@ async function submitVisitor(e) {
     purpose: document.getElementById('purpose').value,
     visitorAddress: document.getElementById('visitorAddress').value,
     phoneNumber: document.getElementById('visitorPhone').value,
+    vehicleNumber: document.getElementById('visitorVehicle').value.toUpperCase(),
     visitingHouse: document.getElementById('visitorHouse').value,
     inTime: document.getElementById('visitorInTime').value,
-    outTime: document.getElementById('visitorOutTime').value
+    outTime: document.getElementById('visitorOutTime').value,
+    photo: capturedPhotoData
   };
   
   try {
@@ -757,8 +1042,10 @@ async function submitVisitor(e) {
     if (result.success) {
       showSuccess('Visitor entry recorded successfully');
       e.target.reset();
+      capturedPhotoData = null;
       const now = new Date();
       document.getElementById('visitorInTime').value = now.toTimeString().slice(0, 5);
+      retakePhoto();
     } else {
       showError(result.error || 'Submission failed');
     }
@@ -785,10 +1072,6 @@ function showError(message) {
   document.body.appendChild(msg);
   setTimeout(() => msg.remove(), 3000);
 }
-
-document.getElementById('adminPassword')?.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') verifyAdmin();
-});
 </script>
 
 </body>
