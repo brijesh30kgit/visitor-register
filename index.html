@@ -54,9 +54,10 @@ body {
 }
 .tab {
   flex: 1;
-  padding: 16px;
+  padding: 16px 8px;
   text-align: center;
   font-weight: 500;
+  font-size: 14px;
   color: #6c757d;
   cursor: pointer;
   border-bottom: 3px solid transparent;
@@ -403,6 +404,86 @@ body {
   cursor: pointer;
   margin-top: 16px;
 }
+.pending-entry-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-left: 4px solid #6366F1;
+}
+.pending-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 12px;
+}
+.pending-entry-name {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 16px;
+}
+.pending-entry-type {
+  background: #6366F1;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.pending-entry-details {
+  font-size: 13px;
+  color: #6c757d;
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+.pending-entry-details strong {
+  color: #495057;
+}
+.outtime-input-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.outtime-input-group input {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.outtime-input-group button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+  transition: opacity 0.2s;
+}
+.outtime-input-group button:active {
+  opacity: 0.8;
+}
+.btn-update-time {
+  background: #10b981;
+  color: white;
+}
+.btn-mark-nr {
+  background: #f59e0b;
+  color: white;
+}
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+}
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+.empty-state-text {
+  font-size: 16px;
+  font-weight: 500;
+}
 </style>
 </head>
 <body>
@@ -474,10 +555,13 @@ body {
 
   <div class="tabs">
     <div class="tab active" onclick="switchTab('vendor')">
-      🔧 For Vendors
+      🔧 Vendors
     </div>
     <div class="tab" onclick="switchTab('visitor')">
-      👤 For Visitors
+      👤 Visitors
+    </div>
+    <div class="tab" onclick="switchTab('outtime')">
+      ⏰ Out Time
     </div>
   </div>
 
@@ -606,6 +690,26 @@ body {
       <button type="submit" class="submit-btn">Submit Entry</button>
     </form>
   </div>
+
+  <!-- Out Time Update Section -->
+  <div id="outtimeForm" class="form-section">
+    <div class="note">
+      💡 Update Out Time for entries that are still pending check-out
+    </div>
+    
+    <div style="margin-bottom: 20px;">
+      <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+        <button class="submit-btn" style="flex: 1;" onclick="loadPendingEntries('vendor')">
+          Load Pending Vendors
+        </button>
+        <button class="submit-btn" style="flex: 1; background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);" onclick="loadPendingEntries('visitor')">
+          Load Pending Visitors
+        </button>
+      </div>
+    </div>
+    
+    <div id="pendingEntriesContainer"></div>
+  </div>
 </div>
 
 <!-- Admin Dashboard -->
@@ -653,7 +757,7 @@ body {
 
 <script>
 // ⚠️ REPLACE THESE URLs
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwnAg3DyjvWzpHO1KIZfg27SN7XiYe4JfHXR_nRewIWXuTcgsS6PbdUJwBALm2XRsTE/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymZlTZEkY_jDnmv1oTfIxkerEidZqaix-ZtazFGfxS9-irTgClAmCgo0u-W36HqQVG/exec';
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1tfF8LtWB5pSqBJFrhtfP3JPLtrKUnPDr5NWatjOzt8k/edit?gid=0#gid=0';
 
 const ADMIN_PASSWORD = 'Ajay123';
@@ -771,7 +875,6 @@ function handleAdminLogin(e) {
 function showGuardApp() {
   document.getElementById('guardLoginScreen').style.display = 'none';
   document.getElementById('guardApp').style.display = 'block';
-  startCamera();
 }
 
 function showAdminApp() {
@@ -793,8 +896,9 @@ function logout() {
 
 async function startCamera() {
   try {
+    // Request BACK camera (environment)
     videoStream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: 'user', width: 640, height: 480 } 
+      video: { facingMode: 'environment', width: 640, height: 480 } 
     });
     const preview = document.getElementById('cameraPreview');
     const video = document.createElement('video');
@@ -863,10 +967,14 @@ function switchTab(type) {
     tabs[0].classList.add('active');
     document.getElementById('vendorForm').classList.add('active');
     stopCamera();
-  } else {
+  } else if (type === 'visitor') {
     tabs[1].classList.add('active');
     document.getElementById('visitorForm').classList.add('active');
     startCamera();
+  } else if (type === 'outtime') {
+    tabs[2].classList.add('active');
+    document.getElementById('outtimeForm').classList.add('active');
+    stopCamera();
   }
 }
 
@@ -963,6 +1071,100 @@ function deleteUser(username) {
   saveUsers(filtered);
   loadUserList();
   showSuccess('User deleted successfully');
+}
+
+async function loadPendingEntries(type) {
+  const container = document.getElementById('pendingEntriesContainer');
+  container.innerHTML = '<div style="text-align: center; padding: 20px; color: #6c757d;">Loading...</div>';
+  
+  try {
+    const response = await fetch(SCRIPT_URL + '?action=getPending&type=' + type);
+    const result = await response.json();
+    
+    if (result.success && result.entries && result.entries.length > 0) {
+      const entriesHtml = result.entries.map(entry => `
+        <div class="pending-entry-card">
+          <div class="pending-entry-header">
+            <div class="pending-entry-name">${entry.name}</div>
+            <div class="pending-entry-type">${type.toUpperCase()}</div>
+          </div>
+          <div class="pending-entry-details">
+            ${type === 'vendor' ? 
+              `<strong>Profession:</strong> ${entry.profession || 'N/A'}<br>` : 
+              `<strong>Purpose:</strong> ${entry.purpose || 'N/A'}<br>`
+            }
+            <strong>Phone:</strong> ${entry.phone || 'N/A'}<br>
+            <strong>Visiting House:</strong> ${entry.house || 'N/A'}<br>
+            <strong>Vehicle:</strong> ${entry.vehicle || 'N/A'}<br>
+            <strong>In Time:</strong> ${entry.inTime || 'N/A'}
+          </div>
+          <div class="outtime-input-group">
+            <input type="time" id="outtime_${entry.row}" value="${getCurrentTime()}">
+            <button class="btn-update-time" onclick="updateOutTime(${entry.row}, '${type}', document.getElementById('outtime_${entry.row}').value)">
+              Update
+            </button>
+            <button class="btn-mark-nr" onclick="updateOutTime(${entry.row}, '${type}', 'NR')">
+              Mark NR
+            </button>
+          </div>
+        </div>
+      `).join('');
+      container.innerHTML = entriesHtml;
+    } else {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">✅</div>
+          <div class="empty-state-text">All ${type}s have checked out!</div>
+        </div>
+      `;
+    }
+  } catch (error) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">❌</div>
+        <div class="empty-state-text">Error loading entries. Please try again.</div>
+      </div>
+    `;
+    showError('Failed to load pending entries');
+  }
+}
+
+function getCurrentTime() {
+  const now = new Date();
+  return now.toTimeString().slice(0, 5);
+}
+
+async function updateOutTime(row, type, outTime) {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Updating...';
+  
+  try {
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'updateOutTime',
+        type: type,
+        row: row,
+        outTime: outTime
+      })
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      showSuccess('Out time updated successfully');
+      // Reload the pending entries list
+      loadPendingEntries(type);
+    } else {
+      showError(result.error || 'Update failed');
+      btn.disabled = false;
+      btn.textContent = outTime === 'NR' ? 'Mark NR' : 'Update';
+    }
+  } catch (error) {
+    showError('Network error. Please check your connection.');
+    btn.disabled = false;
+    btn.textContent = outTime === 'NR' ? 'Mark NR' : 'Update';
+  }
 }
 
 async function submitVendor(e) {
